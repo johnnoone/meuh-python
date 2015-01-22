@@ -12,7 +12,7 @@ __all__ = ['Bot', 'load_settings']
 import logging
 import os
 from meuh.conf import settings
-from meuh.hub import connect
+from meuh.api import connect
 from meuh.util import copy_dir, ensure_dir
 
 logger = logging.getLogger(__name__)

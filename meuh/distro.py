@@ -11,7 +11,7 @@ import json
 import logging
 import os.path
 from meuh.conf import settings, shared
-from meuh.hub import connect
+from meuh.api import connect
 from six import StringIO
 from tempfile import SpooledTemporaryFile
 

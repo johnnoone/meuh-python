@@ -13,7 +13,7 @@ from collections import defaultdict
 
 from meuh.bot import Bot
 from meuh.conf import settings
-from meuh.hub import connect
+from meuh.api import connect
 from meuh.distro import Distro
 
 

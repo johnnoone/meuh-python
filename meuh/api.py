@@ -1,5 +1,5 @@
 """
-    meuh.hub
+    meuh.api
     ~~~~~~~~
 """
 
@@ -14,7 +14,7 @@ from docker import Client
 from docker.utils import kwargs_from_env
 from meuh.conf import settings
 
-# TODO chomp latest \n from meuh.hub handler
+# TODO chomp latest \n from meuh.api handler
 
 logger = logging.getLogger(__name__)
 
