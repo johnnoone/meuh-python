@@ -1,7 +1,6 @@
 """
     meuh.commands.distro
     ~~~~~~~~~~~~~~~~~~~~
-
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
@@ -9,9 +8,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 __all__ = ['CreateCommand',
            'ShowCommand']
 
-from cliff.command import Command
-from meuh.distro import dockerfile, create, distributions, load
 import logging
+from cliff.command import Command
+from meuh.runner import distro_dockerfile, distro_init, distributions
 
 
 class CreateCommand(Command):
@@ -26,7 +25,7 @@ class CreateCommand(Command):
         return parser
 
     def take_action(self, parsed_args):
-        data = create(parsed_args.distro, parsed_args.force)
+        data = distro_init(parsed_args.distro, parsed_args.force)
         print('created %s %s' % (parsed_args.distro, data))
 
 
@@ -41,10 +40,7 @@ class ShowCommand(Command):
         return parser
 
     def take_action(self, parsed_args):
-        data = load(parsed_args.distro)
-        print(data)
-
-        data = dockerfile(parsed_args.distro)
+        data = distro_dockerfile(parsed_args.distro)
         print(data)
 
 

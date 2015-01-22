@@ -22,13 +22,13 @@ setup(
             'meuh = meuh.cli:main',
         ],
         'meuh.commands': [
-            'build = meuh.commands:BuildCommand',
+            'build = meuh.commands.build:BuildCommand',
             'distro_create = meuh.commands.distro:CreateCommand',
             'distro_list = meuh.commands.distro:ListCommand',
             'distro_show = meuh.commands.distro:ShowCommand',
-            'builder_init = meuh.commands.builder:InitCommand',
-            'builder_show = meuh.commands.builder:ShowCommand',
-            'builder_stop = meuh.commands.builder:StopCommand',
+            'bot_init = meuh.commands.bot:InitCommand',
+            'bot_show = meuh.commands.bot:ShowCommand',
+            'bot_stop = meuh.commands.bot:StopCommand',
         ]
     }
 )

@@ -1,6 +1,6 @@
 """
-    meuh.commands.builder
-    ~~~~~~~~~~~~~~~~~~~~~
+    meuh.commands.bot
+    ~~~~~~~~~~~~~~~~~
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
@@ -10,7 +10,7 @@ __all__ = ['InitCommand',
            'StopCommand']
 
 from cliff.command import Command
-from meuh.builder import bot_init, bot_settings, bot_stop
+from meuh.runner import bot_init, bot_settings, bot_stop, distro_init
 import logging
 
 
@@ -26,6 +26,8 @@ class InitCommand(Command):
         return parser
 
     def take_action(self, parsed_args):
+        data = bot_settings(parsed_args.builder)
+        distro_init(data['distro'], False)
         bot_init(parsed_args.builder, parsed_args.force)
         print('created %s' % parsed_args.builder)
 

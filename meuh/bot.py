@@ -7,13 +7,12 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-__all__ = ['Bot', 'BotSettings']
+__all__ = ['Bot', 'load_settings']
 
 import logging
 import os
-from meuh import distro  # TODO should be late loaded
 from meuh.conf import settings
-from meuh.hub import connect, AlreadyExists
+from meuh.hub import connect
 from meuh.util import copy_dir, ensure_dir
 
 logger = logging.getLogger(__name__)
@@ -32,24 +31,17 @@ class Bot(object):
     def __init__(self, name, container_id=None):
         self.name = name
         self.container_id = container_id
-        self.settings = BotSettings(name)
+        self.settings = load_settings(name)
 
     @classmethod
-    def initialise(cls, name):
+    def initialize(cls, name):
         client = connect()
 
         try:
             instance = cls.get_by_name(name)
             logger.info('container %s already exists', instance.container_id)
         except NotFound:
-            # create a new container
-
-            data = BotSettings(name)
-
-            try:
-                distro.create(data['distro'])
-            except AlreadyExists:
-                logger.info('distro %s exists', data['distro'])
+            data = load_settings(name)
 
             image = 'meuh/distro:%s' % data['distro']
             logger.info('create container %s', image)
@@ -145,64 +137,54 @@ class Bot(object):
         return copy_dir(host_dir, dest, keep=False)
 
 
-class BotSettings(object):
+def load_settings(bot):
+    results = {}
 
-    def __init__(self, bot):
-        """
-        :param bot: a Bot instance or a bot name
-        """
+    name = getattr(bot, 'name', bot)
 
-        self.bot = bot
-        self.data = None
+    section = 'builder'
+    if settings.has_section(section):
+        for key, value in settings.items(section):
+            results[key] = value
+    else:
+        logger.warn('%s is not defined' % section)
 
-    def __getitem__(self, name):
-        if self.data is None:
-            self.load()
-        return self.data[name]
+    section = 'builder:%s' % name
+    if settings.has_section(section):
+        for key, value in settings.items(section):
+            results[key] = value
+    else:
+        logger.warn('%s is not defined' % section)
 
-    def load(self):
-        results = {}
+    if 'prereqs' in results:
+        results['prereqs'] = [
+            cmd for cmd in results['prereqs'].split('\n') if cmd
+        ]
+    else:
+        results['prereqs'] = []
 
-        name = getattr(self.bot, 'name', self.bot)
+    if 'build-commands' in results:
+        results['build-commands'] = [
+            cmd for cmd in results['build-commands'].split('\n') if cmd
+        ]
 
-        section = 'builder'
-        if settings.has_section(section):
-            for key, value in settings.items(section):
-                results[key] = value
-        else:
-            logger.warn('%s is not defined' % section)
+    if 'share-dir' not in results:
+        directory = os.path.join(settings.get('common', 'share-dir'),
+                                 name)
+        results['share-dir'] = os.path.expanduser(directory)
 
-        section = 'builder:%s' % name
-        if settings.has_section(section):
-            for key, value in settings.items(section):
-                results[key] = value
-        else:
-            logger.warn('%s is not defined' % section)
-
-        if 'prereqs' in results:
-            results['prereqs'] = [
-                cmd for cmd in results['prereqs'].split('\n') if cmd
-            ]
-        else:
-            results['prereqs'] = []
-
-        if 'build-commands' in results:
-            results['build-commands'] = [
-                cmd for cmd in results['build-commands'].split('\n') if cmd
-            ]
-
-        if 'share-dir' not in results:
-            directory = os.path.join(settings.get('common', 'share-dir'),
-                                     name)
-            results['share-dir'] = os.path.expanduser(directory)
-
-        if 'publish-dir' not in results:
-            directory = os.path.join(settings.get('common', 'publish-dir'),
-                                     name)
-            results['publish-dir'] = os.path.expanduser(directory)
-        self.data = results
+    if 'publish-dir' not in results:
+        directory = os.path.join(settings.get('common', 'publish-dir'),
+                                 name)
+        results['publish-dir'] = os.path.expanduser(directory)
+    return results
 
 
 class NotFound(Exception):
     """Raised when does not exists"""
+    pass
+
+
+class AlreadyExists(Exception):
+    """Raised when a container already exists"""
     pass
