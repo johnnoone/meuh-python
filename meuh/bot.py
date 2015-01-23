@@ -1,13 +1,13 @@
 """
 
-    meuh.builder.bot
-    ~~~~~~~~~~~~~~~~
+    meuh.bot
+    ~~~~~~~~
 
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-__all__ = ['Bot', 'load_settings']
+__all__ = ['Bot']
 
 import logging
 import os
@@ -31,7 +31,10 @@ class Bot(object):
     def __init__(self, name, container_id=None):
         self.name = name
         self.container_id = container_id
-        self.settings = load_settings(name)
+
+    @property
+    def settings(self):
+        return settings.bots[self.name]
 
     @classmethod
     def initialize(cls, name):
@@ -39,12 +42,10 @@ class Bot(object):
 
         try:
             instance = cls.get_by_name(name)
-            logger.info('container %s already exists', instance.container_id)
+            logger.info('running %s for %s', instance.container_id, name)
         except NotFound:
-            data = load_settings(name)
-
+            data = settings.bots[name]
             image = 'meuh/distro:%s' % data['distro']
-            logger.info('create container %s', image)
             container_id = client.create_container(image=image,
                                                    command=['/bin/bash'],
                                                    name=name,
@@ -53,7 +54,7 @@ class Bot(object):
                                                    tty=True,
                                                    stdin_open=True,
                                                    volumes=['/meuh'])
-            logger.info('created container %s', container_id)
+            logger.info('created %s from %s for %s', container_id, image, name)
             instance = cls(name, container_id=container_id)
         instance.start()
         return instance
@@ -65,7 +66,7 @@ class Bot(object):
         for container in client.containers(all=True):
             if container_name in container['Names']:
                 return cls(name, container_id=container['Id'])
-        raise NotFound('builder %s was not found' % name)
+        raise NotFound('bot %s was not found' % name)
 
     def start(self):
         client = connect()
@@ -137,54 +138,6 @@ class Bot(object):
         return copy_dir(host_dir, dest, keep=False)
 
 
-def load_settings(bot):
-    results = {}
-
-    name = getattr(bot, 'name', bot)
-
-    section = 'builder'
-    if settings.has_section(section):
-        for key, value in settings.items(section):
-            results[key] = value
-    else:
-        logger.warn('%s is not defined' % section)
-
-    section = 'builder:%s' % name
-    if settings.has_section(section):
-        for key, value in settings.items(section):
-            results[key] = value
-    else:
-        logger.warn('%s is not defined' % section)
-
-    if 'prereqs' in results:
-        results['prereqs'] = [
-            cmd for cmd in results['prereqs'].split('\n') if cmd
-        ]
-    else:
-        results['prereqs'] = []
-
-    if 'build-commands' in results:
-        results['build-commands'] = [
-            cmd for cmd in results['build-commands'].split('\n') if cmd
-        ]
-
-    if 'share-dir' not in results:
-        directory = os.path.join(settings.get('common', 'share-dir'),
-                                 name)
-        results['share-dir'] = os.path.expanduser(directory)
-
-    if 'publish-dir' not in results:
-        directory = os.path.join(settings.get('common', 'publish-dir'),
-                                 name)
-        results['publish-dir'] = os.path.expanduser(directory)
-    return results
-
-
 class NotFound(Exception):
     """Raised when does not exists"""
-    pass
-
-
-class AlreadyExists(Exception):
-    """Raised when a container already exists"""
     pass

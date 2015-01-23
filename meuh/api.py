@@ -27,7 +27,7 @@ def connect():
         params['tls'].assert_hostname = False
     else:
         params = {
-            'base_url': settings.get('docker', 'base-url')
+            'base_url': settings.docker['base-url']
         }
 
     return Client(**params)

@@ -64,9 +64,8 @@ def distributions():
     })
     client = connect()
 
-    for section in settings.sections():
-        if section.startswith('distro:'):
-            distributions[section[7:]]['defined'] = True
+    for name in settings.distros.keys():
+        distributions[name]['defined'] = True
 
     for data in client.images():
         for tag in data['RepoTags']:

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from setuptools import setup
 
 setup(
@@ -22,6 +24,7 @@ setup(
             'meuh = meuh.cli:main',
         ],
         'meuh.commands': [
+            'settings = meuh.commands.common:SettingsCommand',
             'build = meuh.commands.build:BuildCommand',
             'distro_create = meuh.commands.distro:CreateCommand',
             'distro_list = meuh.commands.distro:ListCommand',
@@ -29,6 +32,9 @@ setup(
             'bot_init = meuh.commands.bot:InitCommand',
             'bot_show = meuh.commands.bot:ShowCommand',
             'bot_stop = meuh.commands.bot:StopCommand',
+        ],
+        'meuh.settings': [
+            'load = meuh.commands.common:SettingsCommand'
         ]
     }
 )
