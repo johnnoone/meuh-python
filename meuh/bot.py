@@ -11,6 +11,7 @@ import logging
 import os.path
 from meuh.conf import settings
 from meuh.api import connect
+from meuh.exceptions import NotFound
 from meuh.util import copy_dir, ensure_dir
 
 logger = logging.getLogger(__name__)
@@ -114,18 +115,19 @@ class Bot(object):
         return resp.strip() or None
 
     def execute(self, cmd):
-        """execute a command into the bot"""
+        """Execute a command into the bot"""
         client = connect()
         formatted = ['/bin/sh', '-c', cmd]
         logger.info('execute %s', cmd)
         for res in client.execute(self.container_id, cmd=formatted, stream=True):
             logger.info(res)
 
-    def kill(self, force=False):
-        """Kill the bot"""
+    def destroy(self, force=False):
+        """Destroy the bot"""
         client = connect()
         client.stop(self.container_id)
         client.remove_container(self.container_id, v=True, force=force)
+        logger.info('destroyed %s for %s', self.container_id, self.name)
         self.container_id = None
 
     def build(self, src):
@@ -149,8 +151,3 @@ class Bot(object):
         dest = os.path.join(self.settings['build-dir'], dest)
 
         return copy_dir(host_dir, dest, keep=False)
-
-
-class NotFound(Exception):
-    """Raised when does not exists"""
-    pass

@@ -10,8 +10,9 @@ __all__ = ['Distro']
 import json
 import logging
 import os.path
-from meuh.conf import settings
 from meuh.api import connect
+from meuh.conf import settings
+from meuh.exceptions import NotFound
 from six import StringIO
 from tempfile import SpooledTemporaryFile
 
@@ -35,20 +36,37 @@ class Distro(object):
     def dockerfile(self):
         return as_dockerfile(self.settings)
 
+    def destroy(self, force=False):
+        client = connect()
+        client.remove_image(self.image_id, force)
+        logger.info('destroyed %s for %s', self.image_id, self.name)
+        self.image_id = None
+
+    @classmethod
+    def get_by_name(cls, name):
+        data = settings.distros[name]
+        client = connect()
+
+        client = connect()
+        for image in client.images():
+            if data['tag'] in image['RepoTags']:
+                logger.info('running %s for %s', image['Id'], name)
+                return cls(name, image['Id'])
+        raise NotFound('distro %s does not exists' % name)
+
     @classmethod
     def initialize(cls, name, force=False):
         data = settings.distros[name]
 
         client = connect()
-        for image in client.images():
-            if data['tag'] in image['RepoTags']:
-                if force:
-                    client.remove_image(image=image['Id'], force=True)
-                    logger.info('removed %s for %s', image['Id'], name)
-                else:
-                    image_id = image['Id']
-                    logger.info('running %s for %s', image['Id'], name)
-                    return cls(name, image_id)
+        try:
+            instance = cls.get_by_name(name)
+            if not force:
+                logger.info('running %s for %s', instance.image_id, instance.name)
+                return instance
+            client.remove_image(instance.image_id, force=True)
+        except NotFound:
+            pass
 
         dockerfile = as_dockerfile(data)
         with SpooledTemporaryFile() as file:
@@ -76,24 +94,24 @@ class Distro(object):
 
 
 def as_dockerfile(data):
+    buffer = StringIO()
     if 'docker-file' in data:
         filename = data['docker-file']
         if not os.path.exists(filename):
             raise ValueError('file %s does not exists' % filename)
 
         with open(filename) as file:
-            return file.read()
-    elif 'distro' not in data:
-        raise Exception('docker-file or distro are mandatories')
+            for line in file:
+                buffer.write(line)
+    elif 'distro' in data:
+        buffer.write('FROM meuh/distro:%s\n' % data['distro'])
+        buffer.write('MAINTAINER Cowgirl MEUH cowgirl@iscool-e.com\n')
+    else:
+        raise RuntimeError('docker-file or distro are mandatories')
 
-    def kv(data):
-        for k, v in data.items():
-            yield '%s=%r' % (k, v)
-
-    buffer = StringIO()
-    buffer.write('FROM meuh/distro:%s\n' % data['distro'])
-    buffer.write('MAINTAINER Cowgirl MEUH cowgirl@iscool-e.com\n')
-    buffer.write('ENV %s\n' % ' '.join(kv(data['env'])))
+    if data['env']:
+        env = ['%s=%r' % (k, v) for k, v in data.items()]
+        buffer.write('ENV %s\n' % ' '.join(env))
 
     for cmd in data['prereqs']:
         buffer.write('RUN %s\n' % cmd)

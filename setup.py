@@ -8,9 +8,9 @@ setup(
     description='Create debian package with git, docker and love',
     author='Xavier Barbosa',
     author_email='clint.northwood@gmail.com',
-    licence='MIT',
+    license='MIT',
     install_requires=[
-        'cliff==1.9.0'
+        'cliff==1.9.0',
         'docker-py==0.7.1',
         'six==1.9.0',
     ],
@@ -20,15 +20,19 @@ setup(
             'meuh = meuh.cli:main',
         ],
         'meuh.commands': [
-            'settings = meuh.commands.common:SettingsCommand',
             'build = meuh.commands.build:BuildCommand',
             'publish = meuh.commands.build:PublishCommand',
-            'distro_create = meuh.commands.distro:CreateCommand',
+            'destroy-all = meuh.commands.admin:DestroyAllCommand',
+            'settings = meuh.commands.admin:SettingsCommand',
+            'distro_init = meuh.commands.distro:InitCommand',
             'distro_list = meuh.commands.distro:ListCommand',
             'distro_show = meuh.commands.distro:ShowCommand',
+            'distro_destroy = meuh.commands.distro:DestroyCommand',
+            'distro_destroy-all = meuh.commands.distro:DestroyAllCommand',
             'bot_init = meuh.commands.bot:InitCommand',
             'bot_show = meuh.commands.bot:ShowCommand',
-            'bot_stop = meuh.commands.bot:StopCommand',
+            'bot_destroy = meuh.commands.bot:DestroyCommand',
+            'bot_destroy-all = meuh.commands.bot:DestroyAllCommand',
         ],
         'meuh.settings': [
             'load = meuh.commands.common:SettingsCommand'

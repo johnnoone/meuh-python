@@ -6,11 +6,14 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 __all__ = ['InitCommand',
-           'ShowCommand',
-           'StopCommand']
+           'DestroyAllCommand',
+           'DestroyCommand',
+           'ShowCommand']
 
 from cliff.command import Command
-from meuh.action import bot_init, bot_settings, bot_stop, distro_init
+from meuh.action import bot_init, bot_settings, bot_destroy, distro_init
+from meuh.conf import settings
+from meuh.exceptions import NotFound
 import logging
 
 
@@ -47,17 +50,38 @@ class ShowCommand(Command):
         print(container)
 
 
-class StopCommand(Command):
-    'create docker builder'
+class DestroyCommand(Command):
+    'destroy a single bot'
 
     log = logging.getLogger(__name__)
 
     def get_parser(self, prog_name):
-        parser = super(StopCommand, self).get_parser(prog_name)
+        parser = super(DestroyCommand, self).get_parser(prog_name)
         parser.add_argument('bot')
         parser.add_argument('--force', action='store_true')
         return parser
 
     def take_action(self, parsed_args):
-        bot_stop(parsed_args.bot, parsed_args.force)
-        print('stopped %s' % parsed_args.bot)
+        bot_destroy(parsed_args.bot, parsed_args.force)
+        self.log.info('%s has been destroyed' % parsed_args.bot)
+
+
+class DestroyAllCommand(Command):
+    'destroy all bots'
+
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(DestroyAllCommand, self).get_parser(prog_name)
+        parser.add_argument('--force', action='store_true')
+        return parser
+
+    def take_action(self, parsed_args):
+        for name in settings.bots.keys():
+            try:
+                bot_destroy(name, parsed_args.force)
+                self.log.info('%s has been destroyed' % name)
+            except NotFound:
+                pass
+            except Exception as e:
+                self.log.error(e)

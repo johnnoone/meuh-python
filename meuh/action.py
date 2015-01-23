@@ -7,12 +7,11 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 __all__ = ['build_src', 'build_publish',
-           'bot_init', 'bot_settings', 'bot_stop', 'Bot']
+           'bot_init', 'bot_settings', 'bot_destroy', 'Bot', 'NotFound']
 
 import os.path
 from collections import defaultdict
-
-from meuh.bot import Bot
+from meuh.bot import Bot, NotFound
 from meuh.conf import settings
 from meuh.api import connect
 from meuh.distro import Distro
@@ -26,8 +25,8 @@ def bot_settings(name):
     return Bot(name).settings
 
 
-def bot_stop(name, force=False):
-    Bot.get_by_name(name).kill(force)
+def bot_destroy(name, force=False):
+    Bot.get_by_name(name).destroy(force)
 
 
 def build_src(name, src_name, src_dir):
@@ -64,6 +63,10 @@ def build_publish(name):
 
 def distro_init(name, force=False):
     Distro.initialize(name, force)
+
+
+def distro_destroy(name, force=False):
+    Distro.get_by_name(name).destroy(force)
 
 
 def distributions():
