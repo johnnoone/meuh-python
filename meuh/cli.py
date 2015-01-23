@@ -1,15 +1,14 @@
 """
     meuh.cli
     ~~~~~~~~
-
-    Execute cli
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-__all__ = ['main']
+__all__ = ['main', 'MeuhApp']
 
 import logging
+import meuh
 import os.path
 import sys
 from cliff.app import App
@@ -23,7 +22,7 @@ class MeuhApp(App):
     def __init__(self):
         super(MeuhApp, self).__init__(
             description='meuh demo app',
-            version='0.1',
+            version=meuh.__version__,
             command_manager=CommandManager('meuh.commands'),
         )
 

@@ -4,19 +4,17 @@ from setuptools import setup
 
 setup(
     name='meuh',
-    version='1.0',
+    version='0.1',
     description='Create debian package with git, docker and love',
     author='Xavier Barbosa',
     author_email='clint.northwood@gmail.com',
+    licence='MIT',
     install_requires=[
         'cliff==1.9.0'
         'docker-py==0.7.1',
         'six==1.9.0',
     ],
     packages=['meuh'],
-    package_data={
-        'meuh.conf': ['*.cfg'],
-    },
     entry_points={
         'console_scripts': [
             'meuh = meuh.cli:main',
