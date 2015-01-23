@@ -14,13 +14,13 @@ from docker import Client
 from docker.utils import kwargs_from_env
 from meuh.conf import settings
 
-# TODO chomp latest \n from meuh.api handler
-
 logger = logging.getLogger(__name__)
 
 
 def connect():
     """connect to docker"""
+    if connect.client:
+        return connect.client
 
     if is_tool('boot2docker'):
         params = kwargs_from_env()
@@ -30,7 +30,9 @@ def connect():
             'base_url': settings.docker['base-url']
         }
 
-    return Client(**params)
+    connect.client = Client(**params)
+    return connect.client
+connect.client = None
 
 
 def is_tool(name):

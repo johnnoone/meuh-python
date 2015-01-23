@@ -1,16 +1,14 @@
-.deb
-====
+Packaging .deb
+==============
 
 https://www.debian.org/doc/manuals/maint-guide/build.en.html
 
-list missing depencendies
--------------------------
 
-Actually I can use ``dpkg-checkbuilddeps`` which shows the build dependencies. That gets me 99% of what I need.
+Build Dependencies
+------------------
 
+Missing build dependencies can be fetched with ``dpkg-checkbuilddeps``.
 
-dpkg-checkbuilddeps?
---------------------
 
 In the package source folder::
 
@@ -19,40 +17,8 @@ In the package source folder::
 will build, and install with aptitude, a package that pulls the build dependencies you need. mk-build-deps is part of the devscripts package.
 
 
-Docker
-======
-
-Running a docker
-----------------
-
-::
-    docker run ubuntu:14.04 /bin/echo 'Hello world'
-
-
-An Interactive Container
-------------------------
-
-::
-
-    sudo docker run -t -i ubuntu:14.04 /bin/bash
-
-
-image ubuntu:14.04
-------------------
-
-Update distrib::
-
-    apt-get update
-    apt-get upgrade
-
-
-and then, install missing building packages::
-
-    apt-get install -y curl build-essential devscripts equivs
-
-
 Build packages
-==============
+--------------
 
 Prepare the current builder user::
 
@@ -86,7 +52,7 @@ Build packages::
     dpkg-buildpackage -us -uc
 
 
-Et copier les builds::
+And then copy::
 
     cp ../*.deb
     cp ../*.dsc

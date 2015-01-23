@@ -10,26 +10,19 @@ from __future__ import absolute_import, print_function, unicode_literals
 __all__ = ['ini', 'settings']
 
 import os.path
-import tempfile
-from six.moves.configparser import ConfigParser
+from six.moves.configparser import RawConfigParser as ConfigParser
 from .loader import Loader
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(HERE, 'share')
+DATA_DIR = os.path.join(HERE, '..', 'data')
 DEFAULT_FILE = os.path.join(DATA_DIR, 'defaults.cfg')
 
 ini = ConfigParser()
 ini.optionxform = str  # avoid .lower() method
-ini.add_section('common')
-ini.set('common', 'share-dir', os.path.join(tempfile.gettempdir(), 'meuh'))
 
 with open(DEFAULT_FILE) as file:
     ini.readfp(file)
 ini.read(['/etc/meuh.cfg', os.path.expanduser('~/.meuh.cfg'), '.meuh.cfg'])
-
-
-def shared(filename):
-    return os.path.join(DATA_DIR, filename)
 
 
 class Settings(object):

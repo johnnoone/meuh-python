@@ -10,7 +10,7 @@ __all__ = ['CreateCommand',
 
 import logging
 from cliff.command import Command
-from meuh.runner import distro_dockerfile, distro_init, distributions
+from meuh.action import distro_dockerfile, distro_init, distributions
 
 
 class CreateCommand(Command):

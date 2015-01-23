@@ -59,6 +59,9 @@ class Loader(object):
         else:
             logger.warn('%s is not defined' % section)
 
+        if 'distro' not in results:
+            raise ValueError('distro is required', name)
+
         if 'prereqs' in results:
             results['prereqs'] = [
                 cmd for cmd in results['prereqs'].split('\n') if cmd
@@ -66,20 +69,24 @@ class Loader(object):
         else:
             results['prereqs'] = []
 
+        if 'publish-commands' in results:
+            results['publish-commands'] = [
+                cmd for cmd in results['publish-commands'].split('\n') if cmd
+            ]
+
         if 'build-commands' in results:
             results['build-commands'] = [
                 cmd for cmd in results['build-commands'].split('\n') if cmd
             ]
 
-        if 'share-dir' not in results:
-            directory = os.path.join(ini.get('common', 'share-dir'),
-                                     name)
-            results['share-dir'] = os.path.expanduser(directory)
+        meta = {
+            'bot': name,
+            'distro': results['distro']
+        }
 
-        if 'publish-dir' not in results:
-            directory = os.path.join(ini.get('common', 'publish-dir'),
-                                     name)
-            results['publish-dir'] = os.path.expanduser(directory)
+        for key in ('build-dir', 'publish-dir'):
+            results[key] = os.path.expanduser(results[key] % meta)
+
         return results
 
     def load_distros(self, ini):

@@ -9,11 +9,9 @@ setup(
     author='Xavier Barbosa',
     author_email='clint.northwood@gmail.com',
     install_requires=[
-        # 'python-debian==0.1.23',
-        'six==1.9.0',
-        # 'deb-pkg-tools==1.29.3',
-        'docker-py==0.7.1',
         'cliff==1.9.0'
+        'docker-py==0.7.1',
+        'six==1.9.0',
     ],
     packages=['meuh'],
     package_data={
@@ -26,6 +24,7 @@ setup(
         'meuh.commands': [
             'settings = meuh.commands.common:SettingsCommand',
             'build = meuh.commands.build:BuildCommand',
+            'publish = meuh.commands.build:PublishCommand',
             'distro_create = meuh.commands.distro:CreateCommand',
             'distro_list = meuh.commands.distro:ListCommand',
             'distro_show = meuh.commands.distro:ShowCommand',

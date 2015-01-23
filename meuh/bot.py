@@ -10,7 +10,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 __all__ = ['Bot']
 
 import logging
-import os
+import os.path
 from meuh.conf import settings
 from meuh.api import connect
 from meuh.util import copy_dir, ensure_dir
@@ -53,7 +53,10 @@ class Bot(object):
                                                    detach=True,
                                                    tty=True,
                                                    stdin_open=True,
-                                                   volumes=['/meuh'])
+                                                   volumes=[
+                                                       '/meuh/build',
+                                                       '/meuh/publish'
+                                                   ])
             logger.info('created %s from %s for %s', container_id, image, name)
             instance = cls(name, container_id=container_id)
         instance.start()
@@ -73,11 +76,14 @@ class Bot(object):
 
         inspect = client.inspect_container(self.container_id)
         if not inspect['State']['Running']:
-            if not ensure_dir(self.settings['share-dir']):
-                logger.info("bind %s:/meuh:rw", self.settings['share-dir'])
+            if not ensure_dir(self.settings['build-dir']):
+                logger.info("bind %s:/meuh:rw", self.settings['build-dir'])
+            if not ensure_dir(self.settings['publish-dir']):
+                logger.info("bind %s:/meuh:rw", self.settings['publish-dir'])
             client.start(self.container_id,
                          binds={
-                             self.settings['share-dir']: '/meuh',
+                             self.settings['build-dir']: '/meuh/build',
+                             self.settings['publish-dir']: '/meuh/publish',
                          })
             logger.info('start %s', self.container_id)
 
@@ -89,15 +95,17 @@ class Bot(object):
         return False
 
     def publish(self):
-        """publish artefacts to host"""
-        src = self.settings['share-dir']
-        dest = self.settings['publish-dir']
+        """publish artefacts"""
+        client = connect()
 
-        ensure_dir(dest)
-        for suffix in ['*.deb', '*.dsc', '*.tar.gz', '*.changes']:
-            filename = os.path.join(src, suffix)
-            copy_dir(filename, dest, keep=True)
-        logger.info('artifacts are publishes into %s', dest)
+        patterns = ['*.deb', '*.dsc', '*.tar.gz', '*.changes']
+        batch = []
+        for pattern in patterns:
+            batch.append('cp -r /meuh/build/%s /meuh/publish' % pattern)
+        cmd = ['/bin/sh', '-c', '; '.join(batch)]
+        for res in client.execute(self.container_id, cmd=cmd, stream=True):
+            logger.info('RES %s', res)
+        logger.info('artifacts are published into /meuh/publish')
 
     @property
     def arch(self):
@@ -111,9 +119,9 @@ class Bot(object):
         """execute a command into the bot"""
         client = connect()
         formatted = ['/bin/sh', '-c', cmd]
-        logger.info('CMD %s', cmd)
+        logger.info('execute %s', cmd)
         for res in client.execute(self.container_id, cmd=formatted, stream=True):
-            logger.info('RES %s', res)
+            logger.info(res)
 
     def kill(self, force=False):
         """Kill the bot"""
@@ -124,16 +132,23 @@ class Bot(object):
 
     def build(self, src):
         client = connect()
-        src_dir = os.path.join('/meuh', src)
+        src_dir = os.path.join('/meuh/build', src)
+
+        for cmd in self.settings['publish-commands']:
+            formatted = ['/bin/sh', '-c', '%s' % cmd]
+            logger.info('execute %s', cmd)
+            for res in client.execute(self.container_id, cmd=formatted, stream=True):
+                logger.info(res)
+
         for cmd in self.settings['build-commands']:
             formatted = ['/bin/sh', '-c', 'cd %s && %s' % (src_dir, cmd)]
-            logger.info('CMD %s', cmd)
+            logger.info('execute %s', cmd)
             for res in client.execute(self.container_id, cmd=formatted, stream=True):
-                logger.info('RES %s', res)
+                logger.info(res)
 
     def share(self, host_dir, dest):
         """Expose files into the bot"""
-        dest = os.path.join(self.settings['share-dir'], dest)
+        dest = os.path.join(self.settings['build-dir'], dest)
 
         return copy_dir(host_dir, dest, keep=False)
 

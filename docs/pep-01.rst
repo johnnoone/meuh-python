@@ -1,12 +1,13 @@
 PEP 01: Share published packages
 ================================
 
-:state: draft
+:state: done
 
 Goals
 -----
 
 * Share published packages between bots with a local repository.
+
 
 Workflow
 --------

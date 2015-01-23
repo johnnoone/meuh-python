@@ -10,7 +10,7 @@ __all__ = ['Distro']
 import json
 import logging
 import os.path
-from meuh.conf import shared, settings
+from meuh.conf import settings
 from meuh.api import connect
 from six import StringIO
 from tempfile import SpooledTemporaryFile
@@ -65,7 +65,6 @@ class Distro(object):
                         logger.info(response['stream'])
                     if 'error' in response:
                         logger.error(response['error'])
-                    # {"status":"Downloading","progressDetail":{"current":14050508,"total":90040320,"start":1421605705},"progress":"[=======\u003e                                           ] 14.05 MB/90.04 MB 2m47s","id":"d0a18d3b84de"}
 
                 except:
                     logger.info(line)
@@ -78,12 +77,9 @@ class Distro(object):
 
 def as_dockerfile(data):
     if 'docker-file' in data:
-        basename = data['docker-file']
-        for filename in [os.path.expanduser(basename), shared(basename)]:
-            if os.path.exists(filename):
-                break
-        else:
-            raise ValueError('file %s does not exists' % basename)
+        filename = data['docker-file']
+        if not os.path.exists(filename):
+            raise ValueError('file %s does not exists' % filename)
 
         with open(filename) as file:
             return file.read()

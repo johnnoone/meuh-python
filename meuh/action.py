@@ -1,12 +1,13 @@
 """
-    meuh.runner
+    meuh.action
     ~~~~~~~~~~~
 
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-__all__ = ['build_src', 'bot_init', 'bot_settings', 'bot_stop', 'Bot']
+__all__ = ['build_src', 'build_publish',
+           'bot_init', 'bot_settings', 'bot_stop', 'Bot']
 
 import os.path
 from collections import defaultdict
@@ -50,6 +51,14 @@ def build_src(name, src_name, src_dir):
     bot.share(os.path.join(src_dir, orig),
               os.path.join(src_base, '..'))
     bot.build(src_base)
+    bot.publish()
+
+
+def build_publish(name):
+    """Publish builts.
+    """
+
+    bot = Bot.initialize(name)
     bot.publish()
 
 

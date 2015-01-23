@@ -1,12 +1,11 @@
 PEP 02: Refactor conf.settings
 ==============================
 
-:state: draft
+:state: in progress
 
 
 Goals
 -----
 
-* Build settings once
+* Build settings once (done)
 * Use stevedore for extending
-
