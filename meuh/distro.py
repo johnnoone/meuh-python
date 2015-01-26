@@ -110,9 +110,10 @@ def as_dockerfile(data):
         raise RuntimeError('docker-file or distro are mandatories')
 
     if data['env']:
-        env = ['%s=%r' % (k, v) for k, v in data.items()]
+        env = ['%s=%r' % (k, v) for k, v in data['env'].items()]
         buffer.write('ENV %s\n' % ' '.join(env))
 
     for cmd in data['prereqs']:
         buffer.write('RUN %s\n' % cmd)
+    print(buffer.getvalue())
     return buffer.getvalue()

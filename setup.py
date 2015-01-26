@@ -5,7 +5,7 @@ from setuptools import setup
 setup(
     name='meuh',
     version='0.1',
-    description='Create debian package with git, docker and love',
+    description='Create debian package with rsync, docker and love',
     author='Xavier Barbosa',
     author_email='clint.northwood@gmail.com',
     license='MIT',
@@ -33,9 +33,6 @@ setup(
             'bot_show = meuh.commands.bot:ShowCommand',
             'bot_destroy = meuh.commands.bot:DestroyCommand',
             'bot_destroy-all = meuh.commands.bot:DestroyAllCommand',
-        ],
-        'meuh.settings': [
-            'load = meuh.commands.common:SettingsCommand'
         ]
     }
 )
