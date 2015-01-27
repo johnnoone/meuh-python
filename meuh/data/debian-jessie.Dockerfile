@@ -1,6 +1,5 @@
-FROM debian:7.8
+FROM debian:8.0
 MAINTAINER Cowgirl MEUH, cowgirl@iscool-e.com
-RUN echo 'deb http://http.debian.net/debian wheezy-backports main' >> /etc/apt/sources.list
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get update && apt-get install -y --no-install-recommends \
         apt-utils \
@@ -11,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         openssh-client \
         vim \
         wget
-RUN apt-get update && apt-get install -y -t wheezy-backports \
+RUN apt-get update && apt-get install -y \
         build-essential \
         devscripts \
         equivs \

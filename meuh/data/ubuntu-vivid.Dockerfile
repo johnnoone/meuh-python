@@ -4,6 +4,7 @@ RUN apt-get update && apt-get -y upgrade
 RUN apt-get update && apt-get install -y \
         build-essential \
         curl \
+        debian-archive-keyring \
         devscripts \
         git \
         equivs \

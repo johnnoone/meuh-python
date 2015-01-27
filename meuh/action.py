@@ -42,12 +42,16 @@ def build_src(name, src_name, src_dir):
     """
 
     src_base = os.path.basename(src_dir)
-    orig = '../%s_*.orig.tar.gz' % src_name
+
+    orig1 = os.path.join(src_dir, '../%s_*.orig.tar.gz' % src_name)
+    orig2 = os.path.join(src_dir, '../%s_*.orig.tar.xz' % src_name)
 
     bot = Bot.initialize(name)
     bot.share(os.path.join(src_dir, '.'),
               os.path.join(src_base, '.'))
-    bot.share(os.path.join(src_dir, orig),
+    bot.share(os.path.join(src_dir, orig1),
+              os.path.join(src_base, '..'))
+    bot.share(os.path.join(src_dir, orig2),
               os.path.join(src_base, '..'))
     bot.build(src_base)
     bot.publish()

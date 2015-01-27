@@ -74,8 +74,8 @@ class Binary(object):
             instance.package = obj.pop('Package')
         except KeyError:
             raise LoadError('Package field is mandatory')
-        instance.architecture = obj.pop('Architecture')
-        instance.depends = obj.pop('Depends')
+        instance.architecture = obj.pop('Architecture', '')
+        instance.depends = obj.pop('Depends', '')
         return instance
 
     def __repr__(self):

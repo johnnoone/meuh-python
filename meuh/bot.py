@@ -97,7 +97,7 @@ class Bot(object):
         """publish artefacts"""
         client = connect()
 
-        patterns = ['*.deb', '*.dsc', '*.tar.gz', '*.changes']
+        patterns = ['*.deb', '*.dsc', '*.tar.gz', '*.tar.xz', '*.changes']
         batch = []
         for pattern in patterns:
             batch.append('cp -r /meuh/build/%s /meuh/publish' % pattern)
@@ -120,7 +120,7 @@ class Bot(object):
         formatted = ['/bin/sh', '-c', cmd]
         logger.info('execute %s', cmd)
         for res in client.execute(self.container_id, cmd=formatted, stream=True):
-            logger.info(res)
+            print(res, end='')
 
     def destroy(self, force=False):
         """Destroy the bot"""
@@ -138,13 +138,13 @@ class Bot(object):
             formatted = ['/bin/sh', '-c', '%s' % cmd]
             logger.info('execute %s', cmd)
             for res in client.execute(self.container_id, cmd=formatted, stream=True):
-                logger.info(res)
+                print(res, end='')
 
         for cmd in self.settings['build-commands']:
             formatted = ['/bin/sh', '-c', 'cd %s && %s' % (src_dir, cmd)]
             logger.info('execute %s', cmd)
             for res in client.execute(self.container_id, cmd=formatted, stream=True):
-                logger.info(res)
+                print(res, end='')
 
     def share(self, host_dir, dest):
         """Expose files into the bot"""
