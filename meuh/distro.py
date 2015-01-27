@@ -10,6 +10,7 @@ __all__ = ['Distro']
 import json
 import logging
 import os.path
+from meuh import ctx
 from meuh.api import connect
 from meuh.conf import settings
 from meuh.exceptions import NotFound
@@ -110,8 +111,8 @@ def as_dockerfile(data):
         raise RuntimeError('docker-file or distro are mandatories')
 
     if data['env']:
-        env = ['%s=%r' % (k, v) for k, v in data['env'].items()]
-        buffer.write('ENV %s\n' % ' '.join(env))
+        env = ctx.inline(data['env'])
+        buffer.write('ENV %s\n' % env)
 
     for cmd in data['prereqs']:
         buffer.write('RUN %s\n' % cmd)

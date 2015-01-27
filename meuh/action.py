@@ -29,7 +29,7 @@ def bot_destroy(name, force=False):
     Bot.get_by_name(name).destroy(force)
 
 
-def build_src(name, src_name, src_dir):
+def build_src(name, src_name, src_dir, env=None):
     """Build a package.
 
     Steps:
@@ -53,7 +53,7 @@ def build_src(name, src_name, src_dir):
               os.path.join(src_base, '..'))
     bot.share(os.path.join(src_dir, orig2),
               os.path.join(src_base, '..'))
-    bot.build(src_base)
+    bot.build(src_base, env)
     bot.publish()
 
 

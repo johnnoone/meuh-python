@@ -9,8 +9,9 @@ __all__ = ['Bot']
 
 import logging
 import os.path
-from meuh.conf import settings
+from meuh import ctx
 from meuh.api import connect
+from meuh.conf import settings
 from meuh.exceptions import NotFound
 from meuh.util import copy_dir, ensure_dir
 
@@ -130,9 +131,10 @@ class Bot(object):
         logger.info('destroyed %s for %s', self.container_id, self.name)
         self.container_id = None
 
-    def build(self, src):
+    def build(self, src, env=None):
         client = connect()
         src_dir = os.path.join('/meuh/build', src)
+        env = ctx.inline(env or {})
 
         for cmd in self.settings['publish-commands']:
             formatted = ['/bin/sh', '-c', '%s' % cmd]
@@ -141,8 +143,8 @@ class Bot(object):
                 print(res, end='')
 
         for cmd in self.settings['build-commands']:
-            formatted = ['/bin/sh', '-c', 'cd %s && %s' % (src_dir, cmd)]
-            logger.info('execute %s', cmd)
+            formatted = ['/bin/sh', '-c', 'cd %s && %s %s' % (src_dir, env, cmd)]
+            logger.info('execute %s', 'cd %s && %s %s' % (src_dir, env, cmd))
             for res in client.execute(self.container_id, cmd=formatted, stream=True):
                 print(res, end='')
 
