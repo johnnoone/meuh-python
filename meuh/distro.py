@@ -63,7 +63,9 @@ class Distro(object):
         try:
             instance = cls.get_by_name(name)
             if not force:
-                logger.info('running %s for %s', instance.image_id, instance.name)
+                logger.info('running %s for %s',
+                            instance.image_id,
+                            instance.name)
                 return instance
             client.remove_image(instance.image_id, force=True)
         except NotFound:
@@ -81,7 +83,7 @@ class Distro(object):
                 try:
                     response = json.loads(line)
                     if 'stream' in response:
-                        logger.info(response['stream'])
+                        print(response['stream'], end='')
                     if 'error' in response:
                         logger.error(response['error'])
 

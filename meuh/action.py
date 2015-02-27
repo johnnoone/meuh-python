@@ -6,7 +6,7 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-__all__ = ['build_src', 'build_publish',
+__all__ = ['build_src', 'build_publish', 'fetch_src',
            'bot_init', 'bot_settings', 'bot_destroy', 'Bot', 'NotFound']
 
 import os.path
@@ -18,7 +18,7 @@ from meuh.distro import Distro
 
 
 def bot_init(name, force=False):
-    Bot.initialize(name)
+    return Bot.initialize(name)
 
 
 def bot_settings(name):
@@ -41,12 +41,35 @@ def build_src(name, src_name, src_dir, env=None):
     - publish results
     """
 
-    src_base = os.path.basename(src_dir)
+    bot = Bot.initialize(name)
+    # bot.cleanup(src_name)
+    bot.build(src_name, src_dir, env)
+    # bot.publish(src_name)
+
+
+def build_src2(name, src_name, src_dir, env=None):
+    """Build a package.
+
+    Steps:
+
+    - init builder if it not exists yet
+    - copy current package into builder share
+    - do we have a orig file ?
+    - build the package
+    - publish results
+    """
+    src_base = os.path.join(src_name, os.path.basename(src_dir))
 
     orig1 = os.path.join(src_dir, '../%s_*.orig.tar.gz' % src_name)
     orig2 = os.path.join(src_dir, '../%s_*.orig.tar.xz' % src_name)
 
+    print('build', src_name)
+    print('build', orig1)
+    print('build', orig2)
+    return
+
     bot = Bot.initialize(name)
+    bot.cleanup(src_name)
     bot.share(os.path.join(src_dir, '.'),
               os.path.join(src_base, '.'))
     bot.share(os.path.join(src_dir, orig1),
@@ -55,6 +78,14 @@ def build_src(name, src_name, src_dir, env=None):
               os.path.join(src_base, '..'))
     bot.build(src_base, env)
     bot.publish()
+
+
+def fetch_src(name, pkg_name, parent_dir):
+    """Download package source from bot.
+    """
+
+    bot = Bot.initialize(name)
+    bot.fetch_src(pkg_name, parent_dir)
 
 
 def build_publish(name):

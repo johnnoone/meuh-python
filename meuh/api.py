@@ -43,3 +43,9 @@ def is_tool(name):
         if e.errno == os.errno.ENOENT:
             return False
     return True
+
+
+def is_running(name):
+    from meuh import host
+    resp = host.execute("ps aux | grep '\--comment boot2docker-vm'").returncode
+    return resp == 0

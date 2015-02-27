@@ -85,3 +85,20 @@ class DestroyAllCommand(Command):
                 pass
             except Exception as e:
                 self.log.error(e)
+
+
+class ExecCommand(Command):
+    'execute arbitrary command'
+
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(ExecCommand, self).get_parser(prog_name)
+        parser.add_argument('bot')
+        parser.add_argument('command')
+        return parser
+
+    def take_action(self, parsed_args):
+        bot = bot_init(parsed_args.bot)
+        resp = bot._exec(parsed_args.command)
+        print(resp)

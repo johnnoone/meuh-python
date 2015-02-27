@@ -21,6 +21,7 @@ setup(
         ],
         'meuh.commands': [
             'build = meuh.commands.build:BuildCommand',
+            'fetch = meuh.commands.build:FetchCommand',
             'publish = meuh.commands.build:PublishCommand',
             'destroy-all = meuh.commands.admin:DestroyAllCommand',
             'settings = meuh.commands.admin:SettingsCommand',
@@ -33,6 +34,7 @@ setup(
             'bot_show = meuh.commands.bot:ShowCommand',
             'bot_destroy = meuh.commands.bot:DestroyCommand',
             'bot_destroy-all = meuh.commands.bot:DestroyAllCommand',
+            'bot_exec = meuh.commands.bot:ExecCommand',
         ]
     }
 )
